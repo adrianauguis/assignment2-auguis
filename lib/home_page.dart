@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
     var response = await http.delete(url);
 
     if (response.statusCode == 200) {
-      print('Successfully deleted ToDo ${object["title"]} ID: ${object["id"]}');
+      print('Successfully deleted ToDo: ${object["title"]} ID: ${object["id"]}');
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           backgroundColor: Colors.redAccent,
           content: Text(
@@ -109,8 +109,10 @@ class _HomePageState extends State<HomePage> {
                             MaterialPageRoute(
                                 builder: (context) =>
                                     EditTodo(todo: mapResponse[index])));
-                        if (check == null) {
+                        if (check != null) {
                           displayEdited(mapResponse[index]);
+                        }else{
+                          print('Nothing changed');
                         }
                       },
                       child: const Text('Edit ToDo')),

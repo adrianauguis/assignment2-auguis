@@ -17,17 +17,18 @@ class _EditTodoState extends State<EditTodo> {
   TextEditingController title = TextEditingController();
   var formKey = GlobalKey<FormState>();
   var id = '';
+  var check;
 
   @override
   void initState() {
     super.initState();
     title.text = widget.todo["title"];
     id = widget.todo["id"].toString();
+    check = widget.todo["title"];
   }
 
   editUser() async {
     var newTitle = title.text;
-    if (formKey.currentState!.validate()) {
       var url = Uri.parse('$baseUrl/$id');
       var bodyData = json.encode({
         'title': newTitle,
@@ -40,7 +41,6 @@ class _EditTodoState extends State<EditTodo> {
       } else {
         return null;
       }
-    }
   }
 
   @override
@@ -70,8 +70,16 @@ class _EditTodoState extends State<EditTodo> {
               const SizedBox(height: 5),
               ElevatedButton(
                   onPressed: () async {
-                    await editUser();
-                    Navigator.pop(context);
+                    if (formKey.currentState!.validate()) {
+                      if (check != title.text){
+                        await editUser();
+                        Navigator.pop(context,check);
+                      }else{
+                        return null;
+                      }
+                    }else{
+                      return null;
+                    }
                   },
                   child: const Text('Done')),
             ],
