@@ -11,19 +11,22 @@ class HomePage extends StatefulWidget {
   @override
   State<HomePage> createState() => _HomePageState();
 }
-
-// Future <TodoModel> todoModel(){};
+// url na sa kuhaan ug data
 const String baseUrl = 'https://jsonplaceholder.typicode.com/todos';
 
 class _HomePageState extends State<HomePage> {
+  //dynamic list sudlan sa response sa http.get
   List mapResponse = <dynamic>[];
 
+  //http.get na function para maka request sa server
   getTodo() async {
     var url = Uri.parse(baseUrl);
     var response = await http.get(url);
 
+    //if ang statusCode == sa 200 succesfull ang pag get sa data
     if (response.statusCode == 200) {
       setState(() {
+        //jsonDecode pag convert sa body to list dynamic
         mapResponse = jsonDecode(response.body) as List<dynamic>;
       });
     } else {
@@ -31,12 +34,14 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  //delete function para sa http.delete
   deleteTodo(var object) async {
     var url = Uri.parse('$baseUrl/${object["id"]}');
     var response = await http.delete(url);
 
     if (response.statusCode == 200) {
       print('Successfully deleted ToDo: ${object["title"]} ID: ${object["id"]}');
+      //kaning snackbar e-run ang program para makita nimo naay mo pop-up sa ubos
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           backgroundColor: Colors.redAccent,
           content: Text(
@@ -46,6 +51,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  //display deleted function display rani na as if na delete ang data sa server
   displayEdited(var object) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: Colors.greenAccent,
@@ -53,6 +59,7 @@ class _HomePageState extends State<HomePage> {
             'Successfully edited ToDo: ${object["title"]} ID: ${object["id"]}')));
   }
 
+  //display reated function display rani na as if na create ang data sa server
   displayCreated(var object) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: Colors.green,
@@ -62,6 +69,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    //gi tawag natong get function sa initState kay para pag initialize sa app mo get ditso sa data sa server
     getTodo();
     super.initState();
   }
@@ -87,6 +95,8 @@ class _HomePageState extends State<HomePage> {
                 border: Border.all(color: Colors.black),
                 borderRadius: BorderRadius.circular(20),
               ),
+
+              //checkbox list tile akong gigamit kay para convenient ra ug bagay sa todo
               child: CheckboxListTile(
                   title: Text('ToDo Title: ${mapResponse[index]['title']}'),
                   controlAffinity: ListTileControlAffinity.leading,

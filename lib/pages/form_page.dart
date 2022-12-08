@@ -9,9 +9,10 @@ class TodoForm extends StatefulWidget {
   @override
   State<TodoForm> createState() => _TodoFormState();
 }
-
+// url na sa butangan ug data
 const String baseUrl = 'https://jsonplaceholder.typicode.com/todos';
 
+//submit data na function para ipasa ang makuha na data sa form padung sa todo model ug padung sa server
 Future<TodoModel?> submitData(String title, bool status) async {
   var url = Uri.parse(baseUrl);
   var bodyData = json.encode({'title': title, 'completed': status});
@@ -21,6 +22,8 @@ Future<TodoModel?> submitData(String title, bool status) async {
     print('Successfully added ToDo!');
     var display = response.body;
     print(display);
+
+    //gi sulod unsa sa strin dayun gi pass sa todo model
     String todoResponse = response.body;
     todoModelFromJson(todoResponse);
   } else {
@@ -38,7 +41,7 @@ class _TodoFormState extends State<TodoForm> {
     return Scaffold(
       appBar: AppBar(
           title: const Center(
-        child: Text('Add ToDo'),
+            child: Text('Add ToDo'),
       )),
       body: Form(
           key: formKey,
