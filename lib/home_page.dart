@@ -100,32 +100,38 @@ class _HomePageState extends State<HomePage> {
               child: CheckboxListTile(
                   title: Text('ToDo Title: ${mapResponse[index]['title']}'),
                   controlAffinity: ListTileControlAffinity.leading,
-                  secondary: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          deleteTodo(mapResponse[index]);
-                          mapResponse.removeAt(index);
-                        });
-                      },
-                      icon: const Icon(Icons.delete_outline)),
+                  secondary: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                          onPressed: () {
+                            setState(() {
+                              deleteTodo(mapResponse[index]);
+                              mapResponse.removeAt(index);
+                            });
+                          },
+                          icon: const Icon(Icons.delete_outline)),
+                      IconButton(
+                        onPressed: () async {
+                          var check = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      EditTodo(todo: mapResponse[index])));
+                          if (check != null) {
+                            displayEdited(mapResponse[index]);
+                          }else{
+                            print('Nothing changed');
+                          }
+                        },
+                        icon: const Icon(Icons.edit),
+                      )
+                    ],
+                  ),
                   value: mapResponse[index]['completed'],
                   selected: mapResponse[index]['completed'],
                   activeColor: Colors.blue,
                   checkColor: Colors.white,
-                  subtitle: ElevatedButton(
-                      onPressed: () async {
-                        var check = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    EditTodo(todo: mapResponse[index])));
-                        if (check != null) {
-                          displayEdited(mapResponse[index]);
-                        }else{
-                          print('Nothing changed');
-                        }
-                      },
-                      child: const Text('Edit ToDo')),
                   onChanged: (bool? value) {
                     setState(() {
                       mapResponse[index]['completed'] = value!;
