@@ -99,7 +99,7 @@ class _HomePageState extends State<HomePage> {
       body: FutureBuilder(
           future: DBProvider.db.getAllTodos(),
           builder: (BuildContext context, AsyncSnapshot snapshot){
-            if (snapshot.hasData) {
+            if (!snapshot.hasData) {
               return const Center(
                 child: CircularProgressIndicator(),
               );

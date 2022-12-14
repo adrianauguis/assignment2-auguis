@@ -29,12 +29,14 @@ class DBProvider {
 
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
-          await db.execute('CREATE TABLE Todo('
-              'id INTEGER PRIMARY KEY,'
-              'userId INTEGER,'
-              'title TEXT,'
-              'completed BOOLEAN'
-              ')');
+          await db.execute("""
+          CREATE TABLE Todos(
+          userId INTEGER NOT NULL,
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          title TEXT NOT NULL,
+          completed INTEGER NOT NULL
+          )
+          """,);
         });
   }
 
@@ -53,11 +55,11 @@ class DBProvider {
     return res;
   }
 
-  Future<List<TodoModel?>> getAllTodos() async {
+  Future<List<TodoModel>> getAllTodos() async {
     final db = await database;
     final res = await db.rawQuery("SELECT * FROM Todo");
 
-    List<TodoModel?> list =
+    List<TodoModel> list =
     res.isNotEmpty ? res.map((c) => TodoModel.fromJson(c)).toList() : [];
 
     return list;
