@@ -1,8 +1,10 @@
 import 'package:assignment_2_auguis/pages/form_page.dart';
+import 'package:assignment_2_auguis/providers/db_provider.dart';
+import 'package:assignment_2_auguis/providers/todo_api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite/sqflite.dart' as sql;
 
 import 'pages/edit_todo.dart';
 
@@ -18,6 +20,7 @@ const String baseUrl = 'https://jsonplaceholder.typicode.com/todos';
 class _HomePageState extends State<HomePage> {
   //dynamic list sudlan sa response sa http.get
   List mapResponse = <dynamic>[];
+  dynamic add;
 
   //http.get na function para maka request sa server
   getTodo() async {
@@ -68,10 +71,16 @@ class _HomePageState extends State<HomePage> {
             'Successfully created ToDo: ${object["title"]} ID: ${object["id"]}')));
   }
 
+  loadFromApi() async {
+    var apiProvider = TodoApiProvider();
+    add = await apiProvider.getAllTodos();
+  }
+
   @override
   void initState() {
     //gi tawag natong get function sa initState kay para pag initialize sa app mo get ditso sa data sa server
     getTodo();
+    loadFromApi();
     super.initState();
   }
 
@@ -87,59 +96,34 @@ class _HomePageState extends State<HomePage> {
           IconButton(onPressed: () {}, icon: const Icon(Icons.info_outlined))
         ],
       ),
-      body: ListView.builder(
-          padding: const EdgeInsets.all(20),
-          itemCount: mapResponse.length,
-          itemBuilder: (context, index) {
-            return Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black),
-                borderRadius: BorderRadius.circular(20),
-              ),
-
-              //checkbox list tile akong gigamit kay para convenient ra ug bagay sa todo
-              child: CheckboxListTile(
-                  title: Text('ToDo Title: ${mapResponse[index]['title']}'),
-                  controlAffinity: ListTileControlAffinity.leading,
-                  secondary: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                          onPressed: () {
-                            setState(() {
-                              deleteTodo(mapResponse[index]);
-                              mapResponse.removeAt(index);
-                            });
-                          },
-                          icon: const Icon(Icons.delete_outline)),
-                      IconButton(
-                        onPressed: () async {
-                          var check = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      EditTodo(todo: mapResponse[index])));
-                          if (check != null) {
-                            displayEdited(mapResponse[index]);
-                          }else{
-                            print('Nothing changed');
-                          }
-                        },
-                        icon: const Icon(Icons.edit),
-                      )
-                    ],
-                  ),
-                  value: mapResponse[index]['completed'],
-                  selected: mapResponse[index]['completed'],
-                  activeColor: Colors.blue,
-                  checkColor: Colors.white,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      mapResponse[index]['completed'] = value!;
-                    });
-                  }),
-            );
-          }),
+      body: FutureBuilder(
+          future: DBProvider.db.getAllTodos(),
+          builder: (BuildContext context, AsyncSnapshot snapshot){
+            if (snapshot.hasData) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else {
+              return ListView.separated(
+                separatorBuilder: (context, index) => const Divider(
+                  color: Colors.black12,
+                ),
+                itemCount: snapshot.data.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return ListTile(
+                    leading: Text(
+                      "${index + 1}",
+                      style: const TextStyle(fontSize: 20.0),
+                    ),
+                    title: Text(
+                        "Title: ${snapshot.data[index].title} ${snapshot.data[index].id} "),
+                    subtitle: Text('Status: ${snapshot.data[index].completed}'),
+                  );
+                },
+              );
+            }
+          },
+      ),
       floatingActionButton: FloatingActionButton(
           onPressed: () {
             Navigator.push(context,
